@@ -128,13 +128,16 @@
                 </div>
             </div>
 
-            <!-- Tombol Pintasan (Hanya Masuk & Keluar) -->
-            <div class="grid grid-cols-2 gap-3">
-                <button @click="openModal('pemasukan')" class="bg-emerald-50 text-emerald-700 p-3.5 rounded-xl text-center font-semibold text-xs shadow-sm border border-emerald-100 flex flex-col items-center gap-1">
+            <!-- Tombol Pintasan (Masuk, Keluar, Transfer) -->
+            <div class="grid grid-cols-3 gap-2">
+                <button @click="openModal('pemasukan')" class="bg-emerald-50 text-emerald-700 p-3 rounded-xl text-center font-semibold text-xs shadow-sm border border-emerald-100 flex flex-col items-center gap-1">
                     <i class="fa-solid fa-arrow-down-long text-emerald-600 text-base"></i> + Masuk
                 </button>
-                <button @click="openModal('pengeluaran')" class="bg-rose-50 text-rose-700 p-3.5 rounded-xl text-center font-semibold text-xs shadow-sm border border-rose-100 flex flex-col items-center gap-1">
+                <button @click="openModal('pengeluaran')" class="bg-rose-50 text-rose-700 p-3 rounded-xl text-center font-semibold text-xs shadow-sm border border-rose-100 flex flex-col items-center gap-1">
                     <i class="fa-solid fa-arrow-up-long text-rose-600 text-base"></i> - Keluar
+                </button>
+                <button @click="openTransferModal()" class="bg-blue-50 text-blue-700 p-3 rounded-xl text-center font-semibold text-xs shadow-sm border border-blue-100 flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-right-left text-blue-600 text-base"></i> Transfer
                 </button>
             </div>
 
@@ -150,15 +153,15 @@
                 <template x-for="trx in transactions.slice(0, 5)" :key="trx.id">
                     <div class="flex justify-between items-center py-2.5 border-b border-slate-50 last:border-0">
                         <div class="flex items-center gap-3">
-                            <div :class="trx.type === 'Pemasukan' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'" class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm">
-                                <i :class="trx.type === 'Pemasukan' ? 'fa-solid fa-plus' : 'fa-solid fa-minus'"></i>
+                            <div :class="trx.type === 'Pemasukan' ? 'bg-emerald-100 text-emerald-600' : (trx.type === 'Transfer' ? 'bg-blue-100 text-blue-600' : 'bg-rose-100 text-rose-600')" class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm">
+                                <i :class="trx.type === 'Pemasukan' ? 'fa-solid fa-plus' : (trx.type === 'Transfer' ? 'fa-solid fa-right-left' : 'fa-solid fa-minus')"></i>
                             </div>
                             <div>
                                 <p class="text-xs font-bold text-slate-800" x-text="trx.category"></p>
                                 <p class="text-[10px] text-slate-400" x-text="trx.date + ' • ' + trx.wallet"></p>
                             </div>
                         </div>
-                        <p class="text-xs font-bold" :class="trx.type === 'Pemasukan' ? 'text-emerald-600' : 'text-slate-800'" x-text="(trx.type === 'Pemasukan' ? '+ ' : '- ') + formatRupiah(trx.amount)"></p>
+                        <p class="text-xs font-bold" :class="trx.type === 'Pemasukan' ? 'text-emerald-600' : (trx.type === 'Transfer' ? 'text-blue-600' : 'text-slate-800')" x-text="(trx.type === 'Pemasukan' ? '+ ' : (trx.type === 'Transfer' ? '⇄ ' : '- ')) + formatRupiah(trx.amount)"></p>
                     </div>
                 </template>
             </div>
@@ -309,13 +312,13 @@
                     <div>
                         <div class="flex items-center gap-2">
                             <span class="text-[10px] px-1.5 py-0.5 rounded font-bold" 
-                                  :class="trx.type === 'Pemasukan' ? 'bg-emerald-100 text-emerald-700' : (trx.type.includes('Piutang') ? 'bg-teal-100 text-teal-700' : (trx.type === 'Pembayaran Hutang' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'))" 
+                                  :class="trx.type === 'Pemasukan' ? 'bg-emerald-100 text-emerald-700' : (trx.type === 'Transfer' ? 'bg-blue-100 text-blue-700' : (trx.type.includes('Piutang') ? 'bg-teal-100 text-teal-700' : (trx.type === 'Pembayaran Hutang' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700')))" 
                                   x-text="trx.type"></span>
                             <span class="text-xs font-bold text-slate-800" x-text="trx.category"></span>
                         </div>
                         <p class="text-[11px] text-slate-400 mt-0.5" x-text="trx.date + ' • ' + trx.wallet + ' • ' + trx.note"></p>
                     </div>
-                    <p class="text-xs font-bold" :class="trx.type.includes('Pemasukan') || trx.type.includes('Piutang') ? 'text-emerald-600' : 'text-slate-800'" x-text="(trx.type.includes('Pemasukan') || trx.type.includes('Piutang') ? '+ ' : '- ') + formatRupiah(trx.amount)"></p>
+                    <p class="text-xs font-bold" :class="trx.type === 'Pemasukan' || trx.type.includes('Piutang') ? 'text-emerald-600' : (trx.type === 'Transfer' ? 'text-blue-600' : 'text-slate-800')" x-text="(trx.type === 'Pemasukan' || trx.type.includes('Piutang') ? '+ ' : (trx.type === 'Transfer' ? '⇄ ' : '- ')) + formatRupiah(trx.amount)"></p>
                 </div>
             </template>
         </section>
@@ -579,6 +582,44 @@
         </div>
     </div>
 
+    <!-- Modal Transfer Antar Dompet -->
+    <div x-show="showTransferModal" class="fixed inset-0 bg-black/50 z-50 flex items-end justify-center p-0 md:items-center no-print">
+        <div class="bg-white w-full max-w-md rounded-t-3xl md:rounded-2xl p-5 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-sm text-slate-800">Transfer Antar Dompet</h3>
+                <button @click="showTransferModal = false" class="text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form @submit.prevent="processTransfer" class="space-y-3">
+                <div>
+                    <label class="text-[11px] font-semibold text-slate-600">Jumlah Transfer (Rp)</label>
+                    <input type="text" x-model="rawTransferAmount" @input="formatInputAmount('transferAmount')" placeholder="Contoh: 500000" required class="w-full mt-1 p-2.5 border rounded-xl text-sm outline-none">
+                    <p class="text-[11px] text-indigo-600 font-medium mt-1" x-text="previewAmount('transferAmount')"></p>
+                </div>
+                <div>
+                    <label class="text-[11px] font-semibold text-slate-600">Dari Dompet (Sumber)</label>
+                    <select x-model="transferForm.fromWallet" class="w-full mt-1 p-2.5 border rounded-xl text-sm outline-none bg-white">
+                        <template x-for="w in wallets">
+                            <option :value="w.name" x-text="w.name + ' (' + formatRupiah(w.balance) + ')'"></option>
+                        </template>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[11px] font-semibold text-slate-600">Ke Dompet (Tujuan)</label>
+                    <select x-model="transferForm.toWallet" class="w-full mt-1 p-2.5 border rounded-xl text-sm outline-none bg-white">
+                        <template x-for="w in wallets">
+                            <option :value="w.name" x-text="w.name + ' (' + formatRupiah(w.balance) + ')'"></option>
+                        </template>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[11px] font-semibold text-slate-600">Catatan / Keterangan</label>
+                    <input type="text" x-model="transferForm.note" placeholder="Contoh: Tarik tunai ATM" class="w-full mt-1 p-2.5 border rounded-xl text-sm outline-none">
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold text-sm shadow-md mt-2">Proses Transfer</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal Tambah/Edit Dompet -->
     <div x-show="showWalletModal" class="fixed inset-0 bg-black/50 z-50 flex items-end justify-center p-0 md:items-center no-print">
         <div class="bg-white w-full max-w-md rounded-t-3xl md:rounded-2xl p-5 space-y-4 shadow-2xl">
@@ -741,6 +782,7 @@
                 currentUser: 'Suami & Istri',
                 showModal: false,
                 showWalletModal: false,
+                showTransferModal: false,
                 showDebtModal: false,
                 showPayModal: false,
                 showPiutangModal: false,
@@ -768,6 +810,8 @@
                 
                 form: { amount: 0, category: '', wallet: '', note: '' },
                 rawFormAmount: '',
+                transferForm: { amount: 0, fromWallet: '', toWallet: '', note: '' },
+                rawTransferAmount: '',
                 walletForm: { name: '', owner: 'Suami & Istri', balance: 0, note: '' },
                 rawWalletBalance: '',
                 debtForm: { name: '', total: 0, paid: 0, dueDate: '' },
@@ -815,6 +859,7 @@
                 formatInputAmount(field) {
                     let raw = '';
                     if (field === 'form') raw = this.rawFormAmount;
+                    else if (field === 'transferAmount') raw = this.rawTransferAmount;
                     else if (field === 'wallet') raw = this.rawWalletBalance;
                     else if (field === 'debtTotal') raw = this.rawDebtTotal;
                     else if (field === 'debtPaid') raw = this.rawDebtPaid;
@@ -828,6 +873,7 @@
                     let formatted = num === '' ? '' : num.toLocaleString('id-ID');
 
                     if (field === 'form') { this.rawFormAmount = formatted; this.form.amount = num; }
+                    else if (field === 'transferAmount') { this.rawTransferAmount = formatted; this.transferForm.amount = num; }
                     else if (field === 'wallet') { this.rawWalletBalance = formatted; this.walletForm.balance = num; }
                     else if (field === 'debtTotal') { this.rawDebtTotal = formatted; this.debtForm.total = num; }
                     else if (field === 'debtPaid') { this.rawDebtPaid = formatted; this.debtForm.paid = num; }
@@ -840,6 +886,7 @@
                 previewAmount(field) {
                     let val = 0;
                     if (field === 'form') val = this.form.amount;
+                    else if (field === 'transferAmount') val = this.transferForm.amount;
                     else if (field === 'wallet') val = this.walletForm.balance;
                     else if (field === 'debtTotal') val = this.debtForm.total;
                     else if (field === 'debtPaid') val = this.debtForm.paid;
@@ -967,6 +1014,19 @@
                     }
                     this.showModal = true;
                 },
+                openTransferModal() {
+                    this.rawTransferAmount = '';
+                    this.transferForm.amount = 0;
+                    this.transferForm.note = '';
+                    if (this.wallets.length >= 2) {
+                        this.transferForm.fromWallet = this.wallets[0].name;
+                        this.transferForm.toWallet = this.wallets[1].name;
+                    } else if (this.wallets.length === 1) {
+                        this.transferForm.fromWallet = this.wallets[0].name;
+                        this.transferForm.toWallet = this.wallets[0].name;
+                    }
+                    this.showTransferModal = true;
+                },
                 openWalletModal() {
                     this.isEditingWallet = false;
                     this.editingWalletId = null;
@@ -1044,6 +1104,42 @@
                     this.showModal = false;
                     this.form = { amount: 0, category: '', wallet: this.wallets[0] ? this.wallets[0].name : '', note: '' };
                     this.rawFormAmount = '';
+                },
+                processTransfer() {
+                    let amount = Number(this.transferForm.amount);
+                    let fromW = this.transferForm.fromWallet;
+                    let toW = this.transferForm.toWallet;
+                    if (fromW === toW) {
+                        alert('Dompet sumber dan tujuan tidak boleh sama!');
+                        return;
+                    }
+                    let sourceWallet = this.wallets.find(w => w.name === fromW);
+                    if (!sourceWallet || sourceWallet.balance < amount) {
+                        alert('Saldo di dompet sumber tidak mencukupi!');
+                        return;
+                    }
+                    let targetWallet = this.wallets.find(w => w.name === toW);
+
+                    sourceWallet.balance -= amount;
+                    if (targetWallet) {
+                        targetWallet.balance += amount;
+                    }
+
+                    this.transactions.unshift({
+                        id: Date.now(),
+                        type: 'Transfer',
+                        category: 'Transfer Dompet',
+                        wallet: `${fromW} ➔ ${toW}`,
+                        amount: amount,
+                        date: new Date().toISOString().slice(0, 10),
+                        note: this.transferForm.note || 'Pergeseran saldo antar dompet'
+                    });
+
+                    this.saveData();
+                    this.showTransferModal = false;
+                    this.transferForm = { amount: 0, fromWallet: '', toWallet: '', note: '' };
+                    this.rawTransferAmount = '';
+                    alert('Transfer antar dompet berhasil dicatat!');
                 },
                 deleteWallet(id) {
                     if (confirm('Hapus pos dompet ini?')) {
